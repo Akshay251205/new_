@@ -1,0 +1,2 @@
+{
+        cout<<marks[i]<<endl;

@@ -1,0 +1,11 @@
+{
+  "name": "fault-tolerant-distributed-file-system",
+  "private": true,
+  "workspaces": [
+    "services/*"
+  ],
+  "scripts": {
+    "dev": "echo \"Use service scripts: npm run dev -w services/storage-node | gateway | web\""
+  }
+}
+
