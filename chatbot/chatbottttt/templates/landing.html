@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Science Experiment Advisor - AI-Powered Learning</title>
+  <meta name="description" content="Discover the AI-powered Science Experiment Advisor. Get expert guidance on physics, chemistry, and biology experiments with step-by-step instructions.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #08090d;
+      --bg-secondary: #0f1118;
+      --bg-card: rgba(17, 19, 28, 0.85);
+      --bg-glass: rgba(255, 255, 255, 0.03);
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-accent: rgba(0, 200, 150, 0.3);
+      --accent: #00d4aa;
+      --accent-glow: rgba(1, 232, 185, 0.15);
+      --accent-dim: #00a88a;
+      --text-primary: #e8eaf0;
+      --text-secondary: #8b8fa3;
+      --text-muted: #4e5268;
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+      --shadow-glow: 0 0 20px rgba(0, 212, 170, 0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      background: linear-gradient(135deg, #08090d, #0f1118, #1a1d2a);
+      color: var(--text-primary);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ── Animated background orbs ── */
+    body::before,
+    body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.4;
+      z-index: 0;
+      pointer-events: none;
+      animation: float 20s ease-in-out infinite;
+    }
+    body::before {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(6, 195, 228, 0.12), transparent 4000%);
+      top: -100px; left: -100px;
+    }
+    body::after {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(56, 97, 251, 0.1), transparent 70%);
+      bottom: -80px; right: -80px;
+      animation-delay: -10s;
+    }
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -20px) scale(1.05); }
+      66% { transform: translate(-20px, 20px) scale(0.95); }
+    }
+
+    /* ── Header ── */
+    header {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      background: linear-gradient(135deg, rgba(8, 9, 13, 0.6), rgba(15, 17, 24, 0.6), rgba(26, 29, 42, 0.6));
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, rgba(35, 5, 230, 0.12), rgba(56, 97, 251, 0.12));
+      border: 1px solid var(--border-accent);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .header-info h1 {
+      font-size: 17px;
+      font-family: poppins, 'Inter', sans-serif;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+    .header-info h1 span {
+      background: linear-gradient(135deg, var(--accent), #3861fb);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header-info p {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      font-weight: 400;
+    }
+
+    .get-started-btn {
+      background: linear-gradient(135deg, var(--accent), #00b89a);
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 2px 12px rgba(0, 212, 170, 0.2);
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .get-started-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(0, 212, 170, 0.35);
+    }
+
+    /* ── Hero Section ── */
+    .hero {
+      position: relative;
+      z-index: 5;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 80px 28px 60px;
+      text-align: center;
+    }
+
+    .hero-icon {
+      width: 120px; height: 120px;
+      background: linear-gradient(135deg, rgba(0, 212, 170, 0.15), rgba(56, 97, 251, 0.15));
+      border: 1px solid var(--border-accent);
+      border-radius: 30px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 60px;
+      margin: 0 auto 32px;
+      box-shadow: var(--shadow-glow);
+      animation: iconFloat 4s ease-in-out infinite;
+    }
+
+    .hero h1 {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--accent), #3861fb);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .cta-primary {
+      background: linear-gradient(135deg, var(--accent), #00b89a);
+      border: none;
+      border-radius: 12px;
+      padding: 16px 32px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 20px rgba(0, 212, 170, 0.3);
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .cta-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 212, 170, 0.4);
+    }
+
+    .cta-secondary {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 16px 32px;
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .cta-secondary:hover {
+      border-color: var(--border-accent);
+      background: var(--accent-glow);
+    }
+
+    /* ── Features Section ── */
+    .features {
+      position: relative;
+      z-index: 5;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 80px 28px;
+    }
+
+    .features h2 {
+      font-size: 36px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 16px;
+      letter-spacing: -0.3px;
+    }
+
+    .features p {
+      font-size: 16px;
+      color: var(--text-secondary);
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 60px;
+      line-height: 1.6;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 32px;
+    }
+
+    .feature-card {
+      background: rgba(8, 9, 13, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 32px;
+      box-shadow: var(--shadow-lg);
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+      border-color: var(--border-accent);
+    }
+
+    .feature-icon {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, rgba(0, 212, 170, 0.15), rgba(56, 97, 251, 0.15));
+      border: 1px solid var(--border-accent);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ── How It Works ── */
+    .how-it-works {
+      position: relative;
+      z-index: 5;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 80px 28px;
+    }
+
+    .how-it-works h2 {
+      font-size: 36px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 16px;
+      letter-spacing: -0.3px;
+    }
+
+    .how-it-works p {
+      font-size: 16px;
+      color: var(--text-secondary);
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 60px;
+      line-height: 1.6;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 32px;
+    }
+
+    .step {
+      text-align: center;
+      padding: 32px 24px;
+      background: rgba(8, 9, 13, 0.6);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .step-number {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, var(--accent), #00b89a);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 auto 20px;
+      box-shadow: 0 4px 16px rgba(0, 212, 170, 0.3);
+    }
+
+    .step h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    .step p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 40px 28px 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .footer p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .footer span {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .hero { padding: 60px 20px 40px; }
+      .hero h1 { font-size: 32px; }
+      .hero p { font-size: 16px; }
+      .hero-cta { flex-direction: column; align-items: center; }
+      .features { padding: 60px 20px; }
+      .features h2 { font-size: 28px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .how-it-works { padding: 60px 20px; }
+      .how-it-works h2 { font-size: 28px; }
+      .steps { grid-template-columns: 1fr; }
+      .header { padding: 12px 20px; }
+      .header-logo { gap: 12px; }
+      .header-info h1 { font-size: 15px; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-icon { width: 80px; height: 80px; font-size: 40px; }
+      .hero h1 { font-size: 24px; }
+      .hero p { font-size: 14px; }
+      .feature-card { padding: 24px; }
+      .step { padding: 24px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-logo">
+      <div class="logo-icon">🔬</div>
+      <div class="header-info">
+        <h1><span>Science Experiment</span> Advisor</h1>
+        <p>Powered by AI · Physics · Chemistry · Biology</p>
+      </div>
+    </div>
+    <a href="{{ url_for('login_page') }}" class="get-started-btn">Get Started</a>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-icon">🧪</div>
+    <h1>Your AI-Powered <span>Science Experiment</span> Guide</h1>
+    <p>Discover the fascinating world of science through interactive experiments. Get expert guidance on physics, chemistry, and biology with step-by-step instructions, safety tips, and scientific explanations.</p>
+    <div class="hero-cta">
+      <a href="{{ url_for('login_page') }}" class="cta-primary">Start Exploring</a>
+      <a href="#features" class="cta-secondary">Learn More</a>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="features">
+    <h2>Why Choose Our AI Advisor?</h2>
+    <p>Experience the future of science education with our intelligent experiment assistant</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3>Expert Guidance</h3>
+        <p>Get detailed, step-by-step instructions for safe and educational science experiments across physics, chemistry, and biology.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3>Safety First</h3>
+        <p>Every experiment comes with comprehensive safety warnings, material precautions, and age-appropriate guidelines.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📚</div>
+        <h3>Educational Depth</h3>
+        <p>Understand the science behind each experiment with clear explanations of concepts, variables, and expected outcomes.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Instant Answers</h3>
+        <p>Ask questions in natural language and receive immediate, personalized responses tailored to your needs.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🏠</div>
+        <h3>Home-Friendly</h3>
+        <p>Find experiments using common household items, perfect for learning at home or in the classroom.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔬</div>
+        <h3>Scientific Accuracy</h3>
+        <p>All information is grounded in real science, ensuring educational value and experimental reliability.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-it-works">
+    <h2>How It Works</h2>
+    <p>Getting started with science experiments has never been easier</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <h3>Ask Your Question</h3>
+        <p>Describe the experiment you're interested in or ask for recommendations based on available materials.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <h3>Get Expert Guidance</h3>
+        <p>Receive detailed instructions including objectives, materials list, step-by-step procedures, and safety notes.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+        <h3>Learn & Experiment</h3>
+        <p>Follow the guidance to perform your experiment safely and understand the scientific principles involved.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">4</div>
+        <h3>Ask Follow-ups</h3>
+        <p>Get answers to additional questions about results, troubleshooting, or extending your experiments.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>BUILT WITH <span>GROQ AI</span> · Empowering Science Education</p>
+  </footer>
+
+</body>
+</html>
