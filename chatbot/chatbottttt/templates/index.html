@@ -389,6 +389,58 @@
       transform: none;
     }
 
+    .modal-content h2 {
+      margin: 0;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 12px;
+      max-height: 360px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .history-item {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .history-item .history-role {
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .history-item .history-content {
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .history-item .history-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .history-empty {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin: 0;
+      text-align: center;
+    }
+
     .error-message {
       color: #ff6b6b;
       font-size: 14px;
@@ -931,6 +983,9 @@
       <p>Powered by AI · Physics · Chemistry · Biology</p>
     </div>
     <div class="header-actions">
+      <button id="history-toggle" class="theme-toggle-btn" onclick="openHistoryModal()" title="View chat history">
+        <span class="theme-icon">🕑</span>
+      </button>
       <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme">
         <span class="theme-icon">🌙</span>
       </button>
@@ -1008,6 +1063,21 @@
 
   <div class="footer">BUILT WITH <span>GROQ AI</span></div>
 
+<!-- History Modal -->
+<div id="history-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Session History</h2>
+      <span class="modal-close" onclick="closeHistoryModal()">&times;</span>
+    </div>
+    <div class="modal-form" style="padding: 24px;">
+      <div id="history-list" class="history-list">
+        <p class="history-empty">Loading your session history...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Login Modal -->
 <div id="login-modal" class="modal">
   <div class="modal-content">
@@ -1038,6 +1108,8 @@
     const sideCards = document.querySelectorAll('.side-card');
 
     // Modal elements
+    const historyModal = document.getElementById("history-modal");
+    const historyList = document.getElementById("history-list");
     const loginModal = document.getElementById("login-modal");
     const loginForm = document.getElementById("login-form");
     const loginError = document.getElementById("login-error");
@@ -1076,7 +1148,18 @@
       loginForm.reset();
     }
 
+    function closeHistoryModal() {
+      historyModal.style.display = "none";
+      document.body.style.overflow = "auto";
+    }
+
     // Close modal when clicking outside
+    historyModal.addEventListener("click", (e) => {
+      if (e.target === historyModal) {
+        closeHistoryModal();
+      }
+    });
+
     loginModal.addEventListener("click", (e) => {
       if (e.target === loginModal) {
         closeLoginModal();
@@ -1131,6 +1214,51 @@
     function fillInput(text) {
       input.value = text;
       input.focus();
+    }
+
+    async function loadChatHistory() {
+      try {
+        const res = await fetch('/history');
+        const data = await res.json();
+        if (Array.isArray(data.history) && data.history.length > 0) {
+          data.history.forEach(item => {
+            addMessage(item.content, item.role);
+          });
+        }
+      } catch (err) {
+        console.warn('Unable to load history:', err);
+      }
+    }
+
+    async function openHistoryModal() {
+      historyModal.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+      await renderHistory();
+    }
+
+    async function renderHistory() {
+      historyList.innerHTML = '<p class="history-empty">Loading your session history...</p>';
+      try {
+        const res = await fetch('/history');
+        const data = await res.json();
+
+        if (!Array.isArray(data.history) || data.history.length === 0) {
+          historyList.innerHTML = '<p class="history-empty">No session history available yet.</p>';
+          return;
+        }
+
+        historyList.innerHTML = data.history.map(item => `
+          <div class="history-item">
+            <div class="history-role">${item.role === 'user' ? 'You' : 'Assistant'}</div>
+            <div class="history-content">${item.content.replace(/\n/g, '<br>')}</div>
+            <div class="history-meta">
+              <span>${new Date(item.created_at).toLocaleString()}</span>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        historyList.innerHTML = '<p class="history-empty">Unable to load session history.</p>';
+      }
     }
 
     function addMessage(text, role) {
@@ -1240,8 +1368,11 @@
       }
     }
 
-    // Initialize theme when page loads
-    document.addEventListener('DOMContentLoaded', initTheme);
+    // Initialize theme and history when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      loadChatHistory();
+    });
   </script>
 </body>
 </html>

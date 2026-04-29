@@ -45,7 +45,10 @@ If you deploy to a cloud host, set environment variables instead of editing `app
 5. In Render dashboard, add environment variables:
    - `GROQ_API_KEY`
    - `FLASK_SECRET_KEY`
+   - `DATABASE_PATH` (optional, defaults to `chat_history.db`)
 6. Deploy the service and open the generated URL.
+
+The app now stores the current session's science chat history in a local SQLite database, so the chatbot can use recent session messages as context for the next science answer. A new history UI is available through the `History` button in the header.
 
 The project also includes a `Dockerfile` and `Procfile` for container-compatible deployment.
 

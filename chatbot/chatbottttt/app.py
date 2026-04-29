@@ -3,6 +3,9 @@ from flask_cors import CORS
 from groq import Groq
 from dotenv import load_dotenv
 import os
+import sqlite3
+import uuid
+from datetime import datetime
 
 load_dotenv()
 
@@ -13,6 +16,75 @@ if not secret_key:
     secret_key = "change-this-secret-key"
     print("WARNING: FLASK_SECRET_KEY is not set. Using an insecure default secret key.")
 app.secret_key = secret_key
+
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DATABASE_PATH = os.environ.get("DATABASE_PATH", os.path.join(BASE_DIR, "chat_history.db"))
+
+
+def get_db_connection():
+    conn = sqlite3.connect(DATABASE_PATH, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def init_db():
+    conn = get_db_connection()
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS chat_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            role TEXT NOT NULL,
+            content TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        )
+        """
+    )
+    conn.commit()
+    conn.close()
+
+
+def save_chat_message(session_id, role, content):
+    conn = get_db_connection()
+    conn.execute(
+        "INSERT INTO chat_history (session_id, role, content, created_at) VALUES (?, ?, ?, ?)",
+        (session_id, role, content, datetime.utcnow().isoformat()),
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_recent_session_history(session_id, limit=12):
+    conn = get_db_connection()
+    rows = conn.execute(
+        "SELECT role, content, created_at FROM chat_history WHERE session_id = ? ORDER BY id DESC LIMIT ?",
+        (session_id, limit),
+    ).fetchall()
+    conn.close()
+    return [
+        {"role": row["role"], "content": row["content"], "created_at": row["created_at"]}
+        for row in reversed(rows)
+    ]
+
+
+@app.route("/history")
+def session_history():
+    session_id = session.get("chat_session_id")
+    if not session_id:
+        return jsonify({"history": []})
+    history = get_recent_session_history(session_id, limit=30)
+    return jsonify({"history": history})
+
+
+@app.before_first_request
+def initialize_database():
+    init_db()
+
+
+@app.before_request
+def ensure_chat_session():
+    if "chat_session_id" not in session:
+        session["chat_session_id"] = str(uuid.uuid4())
 
 # ── Your Groq API Key ─────────────────────────────────────────────────────
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
@@ -105,26 +177,35 @@ def logout():
 def chat():
     data = request.json
     message = data.get("message", "").strip()
+    session_id = session.get("chat_session_id")
 
     if not message:
         return jsonify({"reply": "Please enter a message."})
 
-    # Filter check
     if not is_science_query(message):
+        save_chat_message(session_id, "user", message)
         return jsonify({"reply": "Sorry, I can only assist with science experiment-related questions."})
 
-    # Call Groq
+    # Build history context from previous messages, then save the current user message.
+    history = get_recent_session_history(session_id, limit=10)
+    save_chat_message(session_id, "user", message)
+
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        *history,
+        {"role": "user", "content": message},
+    ]
+
     try:
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user",   "content": message},
-            ],
+            messages=messages,
             max_tokens=1024,
             temperature=0.5,
         )
-        return jsonify({"reply": response.choices[0].message.content})
+        reply_text = response.choices[0].message.content
+        save_chat_message(session_id, "assistant", reply_text)
+        return jsonify({"reply": reply_text})
     except Exception as e:
         return jsonify({"reply": f"Error: {str(e)}"})
 
